@@ -1,7 +1,7 @@
 import MongoClient from 'mongodb'
 
 export default class DB {
-    constructor(options){
+    constructor(options) {
         Object.assign(this, options)
     }
     collection(db) {
