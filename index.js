@@ -1,87 +1,22 @@
-import MongoClient from 'mongodb'
-import {
-    writeFile,
-    readFileSync,
-    readdir
-} from 'fs'
-import {
-    extname
-} from 'path'
 import {
     debug,
     error
 } from 'webrew-helpers-log'
 
+import DB from './db'
 
-
-function connect(server) {
-    return new Promise((resolve, reject) => {
-        MongoClient.connect(server, (err, db) => {
-            if (err) error(new Error('Mongodb connection error'), err)
-            resolve(db)
-        })
-    })
-}
-
-function read(directory) {
-    return new Promise((resolve, reject) => {
-        readdir(directory, (err, files) => {
-            if (err) error(new Error('Read source dir'), err)
-            resolve(files.filter(file => {
-                return extname(file) === `.txt`
-            }));
-        })
-    })
-}
-
-const MONGODB_SERVER = 'mongodb://localhost:27017/book'
-const SOURCE_DIRECTORY = './source'
+let db = new DB({
+    dbServerPath: 'mongodb://localhost:27017/book'
+})
 
 async function start() {
-
-
     /**
      * --------------------------------------------------
      * db connection
      * --------------------------------------------------
      */
-    let dir = await read(SOURCE_DIRECTORY)
-    // debug('connected db:', dir)
-
-
-    /**
-     * --------------------------------------------------
-     * db connection
-     * --------------------------------------------------
-     */
-    let db = await connect(MONGODB_SERVER)
+    let dbConnection = await db.connect()
     debug('connected db:', 'book')
-
-    let filesData = []
-    let books = []
-    dir.map((currentFile, higherIndex) => {
-        let currentBookRawArray = readFileSync(`./source/${currentFile}`).toString().split(`\n`)
-        let dbKey = currentFile.replace(`.txt`, ``).replace(`.`, `-`)
-        currentBookRawArray.map((currentRawVerse, index) => {
-            currentBookRawArray[index] = {
-                [dbKey]: currentRawVerse
-            }
-        })
-        for (let index = 0; index < 6236; index++) {
-            books[index] = Object.assign(books[index] || {}, currentBookRawArray[index])
-        }
-    })
-
-    debug('books:', books)
-
-    // writeFile(`./book.json`, JSON.stringify(books), function (err) {
-    //     if (err) {
-    //         return console.log(err)
-    //     }
-
-    //     console.log("The file was saved!")
-    // })
-    // debug('books:', verses.length)
 
 
     /**
@@ -89,8 +24,17 @@ async function start() {
      * collection selection
      * --------------------------------------------------
      */
-    let collection = db.collection('books')
+    let collection = await db.collection(dbConnection)
+    debug('selected collection:', 'hamed')
 
+
+    /**
+     * --------------------------------------------------
+     * collection find
+     * --------------------------------------------------
+     */
+    let collectionFind = await db.find(collection, {})
+    debug('collection find all:', collectionFind)
 
 
     /**
@@ -98,12 +42,8 @@ async function start() {
      * collection insert
      * --------------------------------------------------
      */
-    await collection.insert(books, function (err, currentCollection) {
-        if (err) throw err
-        else db.close()
-    })
-    debug('selected collection:', 'collection insert books')
-
+    collection = await db.insert(collection)
+    debug('collection insert all:', 'collectionFind')
 
 
     /**
@@ -111,7 +51,7 @@ async function start() {
      * db disconnection
      * --------------------------------------------------
      */
-    
+    dbConnection.close()
     debug('disconnected db:', 'book')
 }
 
