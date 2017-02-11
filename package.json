@@ -2,7 +2,7 @@
   "name": "quran-express",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "insert.js",
   "scripts": {
     "start": "nodemon --require babel-register ./",
     "mongo:server": "mongod --dbpath ./data --port 27017",
