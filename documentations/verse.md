@@ -52,18 +52,13 @@ versus: [{
         section: 34,
         page: 4
     },
-    original: [{
-        language: "persian",
-        type: "clear",
-        context: "Fortune favors the bold."
-    }],
-    translation: [{
-        language: "english",
-        context: "Fortune favors the bold."
-    }, {
-        language: "spanish",
-        context: "La suerte protege a los audaces."
-    }]
+    original: {
+        simple: "Fortune favors the bold."
+    },
+    translation: {
+        es: "La suerte protege a los audaces."
+        en: "Fortune favors the bold."
+    }
 }]
 ```
 
